@@ -71,7 +71,7 @@ M.get_nearest_runner = function()
 	end
 
 	if nearest ~= "" and runner_type == "pane" then
-		if tmux.get_property("window_zoomed_flag") then
+		if tmux.get_property("#{window_zoomed_flag}") == '1' then
 			tmux.exe({ "resize-pane", "-Z" })
 		end
 	end
