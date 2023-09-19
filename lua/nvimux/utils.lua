@@ -53,7 +53,7 @@ end
 M.get_nearest_runner = function()
 	-- Try finding the runner in the current window/session, optionally using a
 	-- name/title filter
-	local runner_type = config.user_opts.runner_type
+	local runner_type = config.get("runner_type")
 	local filter = M.get_target_filter() or nil
 	local views = tmux.exe({
 		"list-" .. runner_type .. "s",
@@ -63,13 +63,20 @@ M.get_nearest_runner = function()
 	})
 	-- Find first one, not marked active (starting with one)
 	local pattern = "1:"
+	local nearest = ""
 	for view in string.gmatch(views, "[^\r\n]+") do
 		if string.sub(view, 1, #pattern) ~= pattern then
-			return string.sub(view, 3)
+			nearest = string.sub(view, 3)
 		end
 	end
 
-	return ""
+	if nearest ~= "" and runner_type == "pane" then
+		if tmux.get_property("window_zoomed_flag") then
+			tmux.exe({ "resize-pane", "-Z" })
+		end
+	end
+
+	return nearest
 end
 
 M.get_existing_runner_id = function()
