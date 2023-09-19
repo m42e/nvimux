@@ -1,0 +1,330 @@
+
+*nvimux.txt*   Run commands in tmux pane and more
+
+                                  Nvimux
+                   run commands in tmux panes and other stuff
+
+==============================================================================
+CONTENTS                                                       *nvimux-contents*
+
+    1. About............................ |NvimuxAbout|
+    2. Configuration ................... |NvimuxConfiguration|
+    3. Usage ........................... |NvimuxUsage|
+      3.1 .............................. |NvimuxRunCommand|
+      3.2 .............................. |NvimuxSendText|
+      3.3 .............................. |NvimuxSendKeys|
+      3.4 .............................. |NvimuxRunLastCommand|
+      3.5 .............................. |NvimuxOpenRunner|
+      3.6 .............................. |NvimuxCloseRunner|
+      3.7 .............................. |NvimuxZoomRunner|
+      3.8 .............................. |NvimuxInspectRunner|
+      3.9 .............................. |NvimuxScrollUpInspect|
+      3.10 ............................. |NvimuxScrollDownInspect|
+      3.11 ............................. |NvimuxInterruptRunner|
+      3.12 ............................. |NvimuxPromptCommand|
+      3.13 ............................. |NvimuxClearTerminalScreen|
+      3.14 ............................. |NvimuxClearRunnerHistory|
+      3.15 ............................. |NvimuxTogglePane|
+      3.16 ............................. |NvimuxLog|
+      3.17 ............................. |NvimuxLoadPane|
+      3.18 ............................. |NvimuxQuickFix|
+
+
+==============================================================================
+ABOUT (1)                                                          *NvimuxAbout*
+
+Nvimux -- run commands in tmux panes and other stuff
+
+This plugin in heavily inspired by Nvimux [1], offering all the features Nvimux has
+offered but is written entirely in lua. Currently it focusses on the main
+functionalities but is intended to be extended.
+
+Like the original Nvimux Nvimux will by default create a horizontal pane with
+20% of your screen and execute commands in there.
+
+I appologize for the lack of documentation you might find here. The truth is
+in the code.
+
+[1] https://github.com/preservim/vimux
+
+
+==============================================================================
+CONFIGURATION (2)                                           *NvimuxConfiguration*
+
+Here is the default value of the configuration.
+>
+  {
+    -- the height/width of the pane if it has to be created
+    height = '20%',
+    -- the orientation, either `h`orizontal or `v`ertical
+    orientation = "v",
+    -- Use a pane/window near the current one, if existing
+    use_nearest = true,
+    -- Reset equences based on the mode of the tmux pane
+    reset_mode_sequence = {
+      -- copy-mode could be left with `q`
+      ["copy-mode"] = "q",
+    },
+    -- The string to ask the user for a command to enter
+    prompt_string = "Command? ",
+    -- Run in `pane` or `window`
+    runner_type = "pane",
+    -- Specify a specific pane/window name
+    runner_name = "",
+    -- Tmux command or full path to be used
+    tmux_command = "tmux",
+    -- additional arguments for the pane if created
+    open_extra_args = {},
+    -- Expand commands, entered into the prompt
+    expand_command = false,
+    -- Close the pane on exit
+    close_on_exit = false,
+    -- Provide shell command completion for prompt
+    command_shell = true,
+    -- Find a runner by a specific query, see tmux for possible filters
+    runner_query = {},
+    -- Key combinations used
+    keys = {
+      -- for clearing the screen
+      clear_screen = "C-l",
+      -- for scrolling up in copy-mode
+      scroll_up = "C-u",
+      -- for scrolling down in copy-mode
+      scroll_down = "C-d",
+      -- for resetting the commandline (delete current line)
+      reset_cmdline = "C-u",
+      -- to interrupt runninng command
+      interrupt = "C-c",
+      -- to confirm command
+      confirm_command = "Enter",
+    },
+  }
+<
+==============================================================================
+USAGE (3)                                                          *NvimuxUsage*
+
+The easiest way of starting a command is probably using the registered custom
+command:
+>
+    :NvimuxRunCommand ls
+<
+Just replace `ls` with your custom command. This will create the split pane
+automatically and run the command in there.
+
+All the commands are wrappers around functions offered by nvimux. You can use
+them from you lua script, too:
+
+>
+    :lua require("nvimux").run("ls")
+<
+------------------------------------------------------------------------------
+                                                            *NvimuxRunCommand*
+NvimuxRunCommand~
+
+Run a shell command in an extra pane.
+
+>
+    " Run the current file with rspec
+    vim.keymap.set("n", "<leader>vl", require("nvimux").run("clear; rspec " . bufname("%")), {})
+<
+
+Lua API:
+>
+    require("nvimux").run(command, autoreturn)
+<
+
+------------------------------------------------------------------------------
+                                                              *NvimuxSendText*
+NvimuxSendText~
+
+Sends text, as it is to the runner pane if there is one opened.
+Interacts with any program or shell waiting for input.
+
+>
+    " Send the content of the " register to the pane
+    local get_reg = function()
+      return vim.api.nvim_exec(\[\[echo getreg('\]\]..char..\[\[')\]\], true):gsub("[\n\r]", "^J")
+    end
+    vim.keymap.set("n", "<leader>P", require("nvimux").send_keys(get_reg("\"")), {})
+<
+
+Lua API:
+>
+    require("nvimux").send_text(your_string)
+<
+
+------------------------------------------------------------------------------
+                                                              *NvimuxSendKeys*
+NvimuxSendKeys~
+
+Sends key or keycombination (such ash C-u for Ctrl+u) to the runner pane if there is one opened.
+Interacts with any program or shell waiting for input.
+
+Lua API:
+>
+    require("nvimux").send_keys(key)
+<
+
+------------------------------------------------------------------------------
+                                                        *NvimuxRunLastCommand*
+NvimuxRunLastCommand~
+
+Reruns the last command run with either |NvimuxRunCommand| or |NvimuxPromptCommand|
+
+Lua API:
+>
+    require("nvimux").run_last()
+<
+
+------------------------------------------------------------------------------
+                                                            *NvimuxOpenRunner*
+NvimuxOpenRunner~
+
+No description available
+
+Lua API:
+>
+    require("nvimux").open()
+<
+
+------------------------------------------------------------------------------
+                                                           *NvimuxCloseRunner*
+NvimuxCloseRunner~
+
+Closes the open runner, if there is one.
+
+Lua API:
+>
+    require("nvimux").close_runner()
+<
+
+------------------------------------------------------------------------------
+                                                            *NvimuxZoomRunner*
+NvimuxZoomRunner~
+
+Zooms the runner, like the "<bindkey> z", which you can then use to unzoom.
+
+Lua API:
+>
+    require("nvimux").zoom_runner()
+<
+
+------------------------------------------------------------------------------
+                                                         *NvimuxInspectRunner*
+NvimuxInspectRunner~
+
+Puts the runnter into inspect/copy-mode, to scroll around
+
+Lua API:
+>
+    require("nvimux").inspect_runner()
+<
+
+------------------------------------------------------------------------------
+                                                       *NvimuxScrollUpInspect*
+NvimuxScrollUpInspect~
+
+Puts the runnter into inspect/copy-mode if needed and scroll up.
+
+Lua API:
+>
+    require("nvimux").inspect_scroll_up()
+<
+
+------------------------------------------------------------------------------
+                                                     *NvimuxScrollDownInspect*
+NvimuxScrollDownInspect~
+
+Puts the runnter into inspect/copy-mode if needed and scroll down.
+
+Lua API:
+>
+    require("nvimux").inspect_scroll_down()
+<
+
+------------------------------------------------------------------------------
+                                                       *NvimuxInterruptRunner*
+NvimuxInterruptRunner~
+
+Sends Ctrl-c, to the running process in the open pane.
+
+Lua API:
+>
+    require("nvimux").interrupt_runner()
+<
+
+------------------------------------------------------------------------------
+                                                         *NvimuxPromptCommand*
+NvimuxPromptCommand~
+
+Opens a prompt to be filled, allows to add some prefix command.
+
+Lua API:
+>
+    require("nvimux").prompt_command(<prefix>)
+<
+
+------------------------------------------------------------------------------
+                                                   *NvimuxClearTerminalScreen*
+NvimuxClearTerminalScreen~
+
+Clears the screen in the pane.
+
+Lua API:
+>
+    require("nvimux").clear_terminal_screen()
+<
+
+------------------------------------------------------------------------------
+                                                    *NvimuxClearRunnerHistory*
+NvimuxClearRunnerHistory~
+
+Clears the tmux history in the pane.
+
+Lua API:
+>
+    require("nvimux").clear_history()
+<
+
+------------------------------------------------------------------------------
+                                                            *NvimuxTogglePane*
+NvimuxTogglePane~
+
+Makes a pane a window and vice versa, will not change the settings.
+
+Lua API:
+>
+    require("nvimux").toggle()
+<
+
+------------------------------------------------------------------------------
+                                                                   *NvimuxLog*
+NvimuxLog~
+
+Print the stored log entries of nvimux.
+
+------------------------------------------------------------------------------
+                                                              *NvimuxLoadPane*
+NvimuxLoadPane~
+
+This will load all the history of a pane up to the numer of lines, or all if not specified, into a buffer.
+
+Lua API:
+>
+    require("nvimux").toggle()
+<
+
+------------------------------------------------------------------------------
+                                                              *NvimuxQuickFix*
+NvimuxQuickFix~
+
+This will load all the history of a pane up to the numer of lines, or all if not specified into the quickfix list
+The first argument is the number of lines, the second one is a specific errorformat, else the default will be used.
+
+Lua API:
+>
+    require("nvimux").toggle()
+<
+
+==============================================================================
+vim:tw=78:ts=2:sw=2:expandtab:ft=help:norl:
