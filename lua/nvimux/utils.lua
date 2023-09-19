@@ -194,7 +194,7 @@ M.runner_exists = function()
 	return false
 end
 
-M.reset_runner = function()
+M.reset_runner_mode = function()
 	if M.runner_index then
 		local mode = tmux.get_property("#{pane_mode}", M.runner_index)
 		local reset_sequences = config.get("reset_mode_sequence")

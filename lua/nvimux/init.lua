@@ -47,7 +47,7 @@ M.run = function(command, autoreturn)
 	end
 	autoreturn = autoreturn or true
 	table.insert(M.last_command, command)
-	utils.reset_runner()
+	utils.reset_runner_mode()
 	utils.send_text(utils.expand_command(command))
 	if autoreturn then
 		utils.send_keys(config.get_keys("confirm_command"))
