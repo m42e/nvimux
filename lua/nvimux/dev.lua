@@ -160,10 +160,19 @@ M.print_help = function()
 		end
 		vim.api.nvim_buf_set_lines(buffer_number, -1, -1, true, content)
 		if cmd["example"] ~= nil then
-			content = utils.prepare_text(cmd["example"], 4)
-			vim.api.nvim_buf_set_lines(buffer_number, -1, -1, true, { "", ">" })
-			vim.api.nvim_buf_set_lines(buffer_number, -1, -1, true, content)
-			vim.api.nvim_buf_set_lines(buffer_number, -1, -1, true, { "<" })
+      if type(cmd["example"]) == "table" then
+        for _, ex in ipairs(cmd["example"]) do
+          content = utils.prepare_text(ex, 4)
+          vim.api.nvim_buf_set_lines(buffer_number, -1, -1, true, { "", ">" })
+          vim.api.nvim_buf_set_lines(buffer_number, -1, -1, true, content)
+          vim.api.nvim_buf_set_lines(buffer_number, -1, -1, true, { "<" })
+        end
+      else
+        content = utils.prepare_text(cmd["example"], 4)
+        vim.api.nvim_buf_set_lines(buffer_number, -1, -1, true, { "", ">" })
+        vim.api.nvim_buf_set_lines(buffer_number, -1, -1, true, content)
+        vim.api.nvim_buf_set_lines(buffer_number, -1, -1, true, { "<" })
+      end
 		end
 		if cmd["api"] ~= nil then
 			vim.api.nvim_buf_set_lines(buffer_number, -1, -1, true, { "", "Lua API:" })
@@ -234,10 +243,19 @@ M.print_md = function()
 		end
 		vim.api.nvim_buf_set_lines(buffer_number, -1, -1, true, content)
 		if cmd["example"] ~= nil then
-			content = utils.prepare_text(cmd["example"], 4)
-			vim.api.nvim_buf_set_lines(buffer_number, -1, -1, true, { "", "```vim" })
-			vim.api.nvim_buf_set_lines(buffer_number, -1, -1, true, content)
-			vim.api.nvim_buf_set_lines(buffer_number, -1, -1, true, { "```" })
+      if type(cmd["example"]) == "table" then
+        for _, ex in ipairs(cmd["example"]) do
+          content = utils.prepare_text(ex, 4)
+          vim.api.nvim_buf_set_lines(buffer_number, -1, -1, true, { "", "```vim" })
+          vim.api.nvim_buf_set_lines(buffer_number, -1, -1, true, content)
+          vim.api.nvim_buf_set_lines(buffer_number, -1, -1, true, { "```" })
+        end
+      else
+        content = utils.prepare_text(cmd["example"], 4)
+        vim.api.nvim_buf_set_lines(buffer_number, -1, -1, true, { "", "```vim" })
+        vim.api.nvim_buf_set_lines(buffer_number, -1, -1, true, content)
+        vim.api.nvim_buf_set_lines(buffer_number, -1, -1, true, { "```" })
+      end
 		end
 		if cmd["api"] ~= nil then
 			vim.api.nvim_buf_set_lines(buffer_number, -1, -1, true, { "", "Lua API:" })

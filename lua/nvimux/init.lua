@@ -61,6 +61,12 @@ M.run_last = function()
 	end
 end
 
+
+---Clear the history of the pane
+M.set_runner_name = function(name)
+	config.set('runner_name', name)
+end
+
 ---Clear the history of the pane
 M.clear_history = function()
 	utils.clear_history()
@@ -154,14 +160,19 @@ M.CMDS = {
 		name = "NvimuxRunCommand",
 		opts = { desc = "nvimux: run command", nargs = "*", complete = "shellcmd" },
 		description = [[
-    Run a shell command in an extra pane.
+    Run a shell command in an extra pane. Just run :NvimuxRunCommand <your_command>.
     ]],
-		example = [[
-    " Run the current file with rspec
+		example = {[[
+    "Run the current file with rspec, and keybinding
     vim.keymap.set("n", "<leader>vl", require("nvimux").run("clear; rspec " . bufname("%")), {})
     ]],
+    [[
+    "From the commandline
+    :NvimuxRunCommand clear; rspec %
+    ]],
+    },
 		command = function(c)
-			M.run(c.args)
+			M.run(c.args, true)
 		end,
 		api = "run(command, autoreturn)",
 	},

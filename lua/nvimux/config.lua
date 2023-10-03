@@ -68,6 +68,13 @@ M.get = function(config_value_name)
 	return M.user_opts[config_value_name]
 end
 
+-- Set/Update a configuration parameter
+---@param config_value_name string The name of the option to be set
+---@param value string value to be set
+M.set = function(config_value_name, value)
+	 M.user_opts[config_value_name] = value
+end
+
 -- Get a key combination parameter
 ---@param config_value_name string The name of the option to be returned
 M.get_keys = function(config_value_name)
