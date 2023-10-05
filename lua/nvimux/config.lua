@@ -16,14 +16,16 @@ M.default_opts = {
 	},
 	-- The string to ask the user for a command to enter
 	prompt_string = "Command? ",
+  -- clear command line before sending command
+  clear_commandline = true,
 	-- Run in `pane` or `window`
 	runner_type = "pane",
 	-- Specify a specific pane/window name
 	runner_name = "",
 	-- Tmux command or full path to be used
 	tmux_command = "tmux",
-	-- additional arguments for the pane if created
-	open_extra_args = { "-e", "ZSH_NO_THEME=1" },
+	-- additional arguments for the pane if created, as a list/table
+	open_extra_args = {},
 	-- Expand commands, entered into the prompt
 	expand_command = false,
 	-- Close the pane on exit
@@ -34,6 +36,8 @@ M.default_opts = {
 	runner_query = {},
 	-- Key combinations used
 	keys = {
+		-- for clearing the current line
+    clear_commandline = "C-u",
 		-- for clearing the screen
 		clear_screen = "C-l",
 		-- for scrolling up in copy-mode
@@ -65,6 +69,13 @@ end
 -- Get a configuration parameter
 ---@param config_value_name string The name of the option to be returned
 M.get = function(config_value_name)
+  if string.find(config_value_name, '[.]') then
+    local opt = M.user_opts
+    for i in string.gmatch(config_value_name, "[^.]+") do
+      opt = opt[i]
+    end
+    return opt
+  end
 	return M.user_opts[config_value_name]
 end
 

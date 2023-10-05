@@ -48,6 +48,9 @@ M.run = function(command, autoreturn)
 	autoreturn = autoreturn or true
 	table.insert(M.last_command, command)
 	utils.reset_runner_mode()
+  if config.get('clear_commandline') then
+    utils.send_keys(config.get('keys.clear_commandline'))
+  end
 	utils.send_text(utils.expand_command(command))
 	if autoreturn then
 		utils.send_keys(config.get_keys("confirm_command"))
